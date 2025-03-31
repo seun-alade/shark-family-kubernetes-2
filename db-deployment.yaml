@@ -23,7 +23,9 @@ spec:
         io.kompose.service: db
     spec:
       containers:
-        - env:
+        - name: db
+          image: mongo:5.0  # ✅ Updated version
+          env:
             - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -34,12 +36,25 @@ spec:
                 secretKeyRef:
                   name: mongo-secret
                   key: MONGO_USERNAME
-          image: mongo:4.1.8-xenial
-          name: db
           volumeMounts:
             - mountPath: /data/db
               name: dbdata
-      restartPolicy: Always
+          livenessProbe:  # ✅ Added probes
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 5
+            periodSeconds: 5
       volumes:
         - name: dbdata
           persistentVolumeClaim:

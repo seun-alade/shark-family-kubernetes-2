@@ -21,7 +21,7 @@ spec:
       labels:
         io.kompose.service: nodejs
     spec:
-      initContainers:  # Moved initContainers outside of containers
+      initContainers:
         - name: init-db
           image: busybox
           command:
@@ -31,7 +31,7 @@ spec:
 
       containers:
         - name: nodejs
-          image: nodejs
+          image: node:latest  # ✅ Fixed image name
           args:
             - ./wait-for.sh
             - db:27017
